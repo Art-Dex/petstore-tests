@@ -1,0 +1,33 @@
+name: API tests in Docker with Allure
+
+on:
+  workflow_dispatch:   # запуск ТОЛЬКО вручную
+
+jobs:
+  docker-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Забираем код
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Собираем Docker-образ из Dockerfile
+      - name: Build Docker image
+        run: |
+          docker build -t petstore-tests .
+
+      # 3. Запускаем тесты ВНУТРИ контейнера
+      - name: Run tests inside Docker container
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}/allure-results:/app/allure-results \
+            petstore-tests
+
+      # 4. Загружаем allure-results как artifact
+      - name: Upload Allure results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: allure-results
