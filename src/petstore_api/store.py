@@ -1,0 +1,2 @@
+class StoreAPI:
+    pass
