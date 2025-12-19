@@ -24,6 +24,14 @@ jobs:
             -v ${{ github.workspace }}/allure-results:/app/allure-results \
             petstore-tests
 
+      - name: Debug allure-results
+        run: |
+            echo "Workspace:"
+            pwd
+            ls -la
+            echo "Allure results:"
+            ls -la allure-results || echo "NO allure-results"
+
       # 4. Устанавливаем Java (нужна для Allure)
       - name: Install Java
         run: |
@@ -41,6 +49,8 @@ jobs:
       - name: Generate Allure HTML report
         run: |
           allure generate allure-results -o allure-report --clean
+          echo "Allure report contents:"
+          ls -la allure-report || echo "NO allure-report"
 
       # 7. Сохраняем Allure HTML
       - name: Upload Allure HTML report
