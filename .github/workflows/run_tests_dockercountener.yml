@@ -1,7 +1,7 @@
-name: API tests in Docker with Allure HTML
+name: API tests in Docker with Allure
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:   # запуск ТОЛЬКО вручную
 
 jobs:
   docker-tests:
@@ -12,50 +12,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Собираем Docker-образ
+      # 2. Собираем Docker-образ из Dockerfile
       - name: Build Docker image
         run: |
           docker build -t petstore-tests .
 
-      # 3. Запускаем тесты в контейнере
-      - name: Run tests inside Docker
+      # 3. Запускаем тесты ВНУТРИ контейнера
+      - name: Run tests inside Docker container
         run: |
           docker run --rm \
             -v ${{ github.workspace }}/allure-results:/app/allure-results \
             petstore-tests
 
-      - name: Debug allure-results
-        run: |
-            echo "Workspace:"
-            pwd
-            ls -la
-            echo "Allure results:"
-            ls -la allure-results || echo "NO allure-results"
-
-      # 4. Устанавливаем Java (нужна для Allure)
-      - name: Install Java
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y default-jre
-
-      # 5. Устанавливаем Allure CLI
-      - name: Install Allure
-        run: |
-          curl -o allure.tgz -Ls https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz
-          sudo tar -zxvf allure.tgz -C /opt/
-          sudo ln -s /opt/allure-2.27.0/bin/allure /usr/bin/allure
-
-      # 6. Генерация Allure HTML
-      - name: Generate Allure HTML report
-        run: |
-          allure generate allure-results -o allure-report --clean
-          echo "Allure report contents:"
-          ls -la allure-report || echo "NO allure-report"
-
-      # 7. Сохраняем Allure HTML
-      - name: Upload Allure HTML report
+      # 4. Загружаем allure-results как artifact
+      - name: Upload Allure results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: allure-report
-          path: allure-report
+          name: allure-results
+          path: allure-results
