@@ -48,8 +48,10 @@ petstore-api-tests/
 │ ├── test_user.py
 │ └── conftest.py
 │
+├── .github/
+│ ├── workflows/
+│
 ├── Dockerfile
-├── .gitlab-ci.yml
 ├── requirements.txt
 ├── pytest.ini
 ├── env.example
