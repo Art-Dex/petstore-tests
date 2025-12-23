@@ -7,7 +7,7 @@ https://petstore3.swagger.io/
 - Allure для отчётности
 - Pydantic для валидации контрактов
 - Docker для воспроизводимой среды
-- GitLab CI для CI/CD
+- GitHub Actions для CI/CD
 
 ---
 

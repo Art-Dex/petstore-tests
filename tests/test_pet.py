@@ -5,6 +5,7 @@ from src.data_generator.data_generator import generate_randon_status_pet, genera
 from src.models.pet import Pet, FieldPetStatus
 from src.petstore_api.pet import PetAPI
 
+
 @allure.epic("Petstore")
 @allure.feature("Pet")
 class TestsPet:
@@ -307,5 +308,3 @@ class TestsPet:
 
         with allure.step("Проверка, что файл действительно добавился"):
             assert len(pet_response.photoUrls) == len(pet_body["photoUrls"]) + 1
-
-
