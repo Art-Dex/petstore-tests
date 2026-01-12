@@ -20,7 +20,7 @@ jobs:
       # 3. Запускаем тесты ВНУТРИ контейнера
       - name: Run tests inside Docker container
         run: |
-          docker run --rm \
+          docker run --rm --env-file .env \
             -v ${{ github.workspace }}/allure-results:/app/allure-results \
             petstore-tests
 
