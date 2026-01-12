@@ -21,7 +21,7 @@ jobs:
       - name: Run tests inside Docker container
         run: |
           docker run --rm \
-            --env-file .env \
+            -e API_BASE_URL=${{ secrets.API_BASE_URL }} \
             -v ${{ github.workspace }}/allure-results:/app/allure-results \
             petstore-tests
 
