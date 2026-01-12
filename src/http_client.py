@@ -10,6 +10,11 @@ class HttpClient:
         Args:
             base_url: базовый URL API
         """
+        if not base_url:
+            raise RuntimeError(
+                "API_BASE_URL is not set. "
+                "Did you forget to pass --env-file .env to docker run?"
+            )
         self.base_url = base_url.rstrip('/')
 
     def _url(self, path: str) -> str:
@@ -24,7 +29,7 @@ class HttpClient:
         """
         return f"{self.base_url}/{path.lstrip('/')}"
 
-    def request(self, method, path, params=None, body=None, headers=None, data=None):
+    def request(self, method, path, params=None, body=None, headers=None, data=None, files=None):
         """
         Универсальный метод отправки HTTP-запроса.
 
@@ -39,6 +44,7 @@ class HttpClient:
                 Для form-encoded данных устанавливается заголовок
                 Content-Type: application/x-www-form-urlencoded.
                 Взаимоисключающий параметр с `body`.
+            files:
         Returns:
             объект requests.Response для дальнейшей проверки
         """
@@ -50,7 +56,8 @@ class HttpClient:
             params=params,
             json=body,
             data=data,
-            headers=headers
+            headers=headers,
+            files=files
         )
 
         if resp.status_code >= 400:
@@ -64,8 +71,8 @@ class HttpClient:
 
     @allure.step('Отправить POST запрос к "{path}"')
     def post(self, path: str, body: dict = None, params: dict = None,
-             header: dict = None, data=None) -> requests.Response:
-        resp = self.request(method="POST", path=path, params=params, body=body, headers=header, data=data)
+             header: dict = None, data=None, file=None) -> requests.Response:
+        resp = self.request(method="POST", path=path, params=params, body=body, headers=header, data=data, files=file)
         return resp
 
     @allure.step('Отправить PUT запрос к "{path}"')

@@ -1,13 +1,14 @@
 # Petstore API Autotests
 
 Автоматизированный тестовый проект для Swagger Petstore API  
-https://petstore3.swagger.io/
+https://petstore.swagger.io/#/
 
 Проект реализован на **Python + Pytest + Requests**, с использованием:
 - Allure для отчётности
 - Pydantic для валидации контрактов
 - Docker для воспроизводимой среды
 - GitHub Actions для CI/CD
+- многопоточность запуска тестов
 
 ---
 
@@ -16,6 +17,7 @@ https://petstore3.swagger.io/
 - Покрыть REST API автотестами
 - Проверять позитивные и негативные сценарии
 - Валидировать ответы по документации API
+- Проверять корректность работы API как отдельных ручек, так и end-to-end сценариев
 
 ---
 
@@ -27,8 +29,8 @@ https://petstore3.swagger.io/
 - Pydantic v2
 - Allure
 - Docker
-- GitLab CI
-
+- GitHub CI
+- pytest-xdist (многопоточность)
 ---
 
 ##  Структура проекта 
@@ -37,21 +39,20 @@ https://petstore3.swagger.io/
 petstore-api-tests/
 
 ├── src/
-│ ├── http_client/ # HTTP клиент
-│ ├── petstore_api/ # API-обёртки (Pet, Store, User)
-│ ├── models/ # Pydantic модели
-│ ├── data_generator/ # Генераторы тестовых данных
+│ ├── http_client.py        # HTTP клиент
+│ ├── petstore_api/         # API-обёртки (Pet, Store, User)
+│ ├── models/               # Pydantic модели
+│ ├── data_generator/       # Генераторы тестовых данных
 │
 ├── tests/
-│ ├── test_pet.py
-│ ├── test_store.py
-│ ├── test_user.py
-│ └── conftest.py
-│
-├── .github/
-│ ├── workflows/
+│ ├── test_pet.py           # Атомарные тесты Pet API
+│ ├── test_store.py         # Атомарные тесты Store API
+│ ├── test_user.py          # Атомарные тесты User API
+│ ├── test_petstore_e2e.py  # End-to-End тест-сценарии
+│ └── conftest.py           # Фикстуры и конфигурация
 │
 ├── Dockerfile
+├── .gitlab-ci.yml
 ├── requirements.txt
 ├── pytest.ini
 ├── env.example
@@ -71,6 +72,34 @@ ___
 
 ⚠️ Файл `.env` не должен коммититься в репозиторий и добавлен в .gitignore
 
+
+___
+## Многопоточный запуск тестов
+В проекте настроен параллельный запуск тестов в 4 потока с использованием pytest-xdist.
+
+Конфигурация задана по умолчанию в файле pytest.ini:
+```ini
+[pytest]
+addopts = -n 4 -l -s --alluredir=allure-results
+```
+Это позволяет значительно сократить общее время прогона тестов без дополнительной настройки команд запуска.
+___
+## End-to-End (E2E) тест-сценарии
+Помимо атомарных API-тестов, в проекте реализованы End-to-End тест-сюиты, проверяющие ключевые бизнес-сценарии Petstore API.
+
+E2E-сценарии находятся в файле tests/test_petstore_e2e.py
+
+### Реализованные E2E сценарии:
+
+1. Создание пользователя → Авторизация → Заказ животного
+2. Создание животного → Обновление животного → Заказ
+3. Авторизация → Заказ животного → Удаление заказа
+
+## Каждый сценарий:
+- полностью независим
+- создаёт все необходимые сущности внутри теста
+- удаляет созданные данные после выполнения
+- оформлен в виде шагов Allure для наглядной отчётности
 
 ___
 ## Запуск тестов локально
@@ -99,7 +128,7 @@ docker build -t petstore-tests .
 
 ### Запуск тестов
 ```bash
-docker run --rm petstore-tests
+docker run --rm --env-file .env petstore-tests
 ```
 ### Запуск с сохранением Allure результатов
 ```bash

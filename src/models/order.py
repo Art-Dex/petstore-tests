@@ -1,7 +1,8 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, RootModel
 from typing import Optional
 from datetime import datetime
 from enum import Enum
+from typing import Dict
 
 
 class OrderStatus(str, Enum):
@@ -17,3 +18,7 @@ class Order(BaseModel):
     shipDate: Optional[datetime] = None
     status: Optional[OrderStatus] = None
     complete: Optional[bool] = None
+
+
+class InventoryResponse(RootModel[Dict[str, int]]):
+    pass

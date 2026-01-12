@@ -11,3 +11,9 @@ class User(BaseModel):
     password: Optional[str] = None
     phone: Optional[str] = None
     userStatus: Optional[int] = None
+
+
+class FieldUsernameNotFound(BaseModel):
+    code: Optional[int] = 1
+    type: Optional[str] = "error"
+    message: Optional[str] = "User not found"
